@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Controle de EPIs</title>
+<meta name="theme-color" content="#0E0E10">
+<meta name="description" content="Protótipo — registro de retirada de EPIs com foto automática">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="EPIs">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark"></span>
+    <div>
+      <strong>Controle de EPIs</strong>
+      <small id="empresaLabel">—</small>
+    </div>
+  </div>
+  <div class="top-right">
+    <span id="modo" class="modo" title=""></span>
+    <select id="empresa" class="empresa-select" aria-label="Empresa"></select>
+  </div>
+</header>
+
+<main>
+  <!-- RETIRADA -->
+  <section id="view-retirada" class="view active">
+    <h1>Nova retirada</h1>
+
+    <label class="field-label">Quem está retirando</label>
+    <div id="funcionarios" class="chips"></div>
+
+    <label class="field-label" for="area">Área / setor</label>
+    <select id="area" class="input"></select>
+
+    <label class="field-label">Material</label>
+    <div id="materiais" class="materials"></div>
+
+    <label class="field-label">Quantidade</label>
+    <div class="stepper">
+      <button type="button" id="menos" aria-label="Diminuir">−</button>
+      <output id="qtd">1</output>
+      <button type="button" id="mais" aria-label="Aumentar">+</button>
+    </div>
+
+    <div class="note">
+      <span class="note-dot"></span>
+      Ao confirmar, a câmera frontal abre e a foto é tirada automaticamente.
+    </div>
+
+    <button id="confirmar" class="btn-primary" disabled>Confirmar retirada</button>
+  </section>
+
+  <!-- HISTÓRICO -->
+  <section id="view-historico" class="view">
+    <div class="hist-head">
+      <h1>Retiradas recentes</h1>
+      <span id="histCount" class="pill">0</span>
+    </div>
+    <div id="lista" class="list"></div>
+    <a href="painel.html" class="btn-ghost link">Abrir painel de gestão →</a>
+  </section>
+</main>
+
+<nav class="tabbar">
+  <button data-view="retirada" class="tab active">
+    <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+    Retirar
+  </button>
+  <button data-view="historico" class="tab">
+    <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+    Histórico
+  </button>
+</nav>
+
+<!-- CÂMERA -->
+<div id="camera" class="overlay" hidden>
+  <video id="video" playsinline muted autoplay></video>
+  <div class="cam-guide"></div>
+  <div class="cam-top">
+    <strong id="camNome"></strong>
+    <span id="camItem"></span>
+  </div>
+  <div id="countdown" class="countdown"></div>
+  <div id="camMsg" class="cam-msg">Olhe para a câmera</div>
+  <div id="flash" class="flash"></div>
+  <button id="camCancel" class="cam-cancel">Cancelar</button>
+
+  <div id="camErro" class="cam-erro" hidden>
+    <h2>Câmera bloqueada</h2>
+    <p id="camErroTxt">Permita o acesso à câmera para registrar a retirada.</p>
+    <button id="camRetry" class="btn-primary">Tentar novamente</button>
+    <button id="camErroCancel" class="btn-ghost light">Cancelar</button>
+  </div>
+</div>
+
+<!-- AVISO: RETIRADA ANTES DO PRAZO -->
+<div id="aviso" class="overlay sheet-bg" hidden>
+  <div class="sheet">
+    <div class="sheet-icon">!</div>
+    <h2>Retirada antes do prazo</h2>
+    <p id="avisoTxt"></p>
+    <label class="field-label">Motivo</label>
+    <div id="motivos" class="chips wrap">
+      <button type="button" class="chip">Danificado</button>
+      <button type="button" class="chip">Perdido</button>
+      <button type="button" class="chip">Desgaste precoce</button>
+      <button type="button" class="chip">Outro</button>
+    </div>
+    <button id="avisoOk" class="btn-primary" disabled>Continuar e tirar foto</button>
+    <button id="avisoCancel" class="btn-ghost">Cancelar</button>
+  </div>
+</div>
+
+<!-- SUCESSO -->
+<div id="sucesso" class="overlay light" hidden>
+  <div class="ok-wrap">
+    <div class="ok-badge">
+      <svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+    </div>
+    <h2>Retirada registrada</h2>
+    <img id="okFoto" class="ok-foto" alt="Foto da retirada">
+    <dl id="okDados" class="ok-dados"></dl>
+    <button id="novaRetirada" class="btn-primary">Nova retirada</button>
+  </div>
+</div>
+
+<!-- FOTO AMPLIADA -->
+<div id="zoom" class="overlay zoom" hidden>
+  <img id="zoomImg" alt="Foto ampliada">
+</div>
+
+<div id="installHint" class="install" hidden>
+  <span id="installTxt"></span>
+  <button id="installBtn" class="install-btn" hidden>Instalar</button>
+  <button id="installClose" class="install-x" aria-label="Fechar">×</button>
+</div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
